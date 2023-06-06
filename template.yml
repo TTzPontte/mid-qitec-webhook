@@ -121,11 +121,11 @@ Resources:
       Policies:
         # Give Create/Read/Update/Delete Permissions to the SampleTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref EventTable
+            TableName: !Ref WebhookEventsTable
       Environment:
         Variables:
           # Make table name accessible as environment variable from function code during execution
-          EVENT_TABLE: !Ref EventTable
+          EVENT_TABLE: !Ref WebhookEventsTable
       Events:
         Api:
           Type: Api
@@ -145,18 +145,38 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
-  EventTable:
+
+  WebhookEventsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: MyEventTable
+      TableName: WebhookEvents
       AttributeDefinitions:
-        - AttributeName: event_id
+        - AttributeName: eventId
+          AttributeType: S
+        - AttributeName: eventType
+          AttributeType: S
+        - AttributeName: partitionKey
+          AttributeType: S
+        - AttributeName: eventData
           AttributeType: S
       KeySchema:
-        - AttributeName: event_id
+        - AttributeName: eventId
           KeyType: HASH
+        - AttributeName: eventData
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+      GlobalSecondaryIndexes:
+        - IndexName: EventTypeIndex
+          KeySchema:
+            - AttributeName: eventType
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      BillingMode: PROVISIONED
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
