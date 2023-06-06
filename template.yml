@@ -109,6 +109,29 @@ Resources:
           Properties:
             Path: /
             Method: POST
+  webhookFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/webhook.webhookHandler
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Timeout: 60
+      Description: A simple example includes a HTTP post method to add one item to a DynamoDB table.
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          EVENT_TABLE: !Ref EventTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /webhook
+            Method: POST
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
 
@@ -122,3 +145,18 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
+  EventTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: MyEventTable
+      AttributeDefinitions:
+        - AttributeName: event_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: event_id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
