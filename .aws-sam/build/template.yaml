@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Website & Mobile starter project
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    PermissionsBoundary:
+      Fn::Sub: arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/${AppId}-${AWS::Region}-PermissionsBoundary
+Parameters:
+  AppId:
+    Type: String
+Resources:
+  getAllItemsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: getAllItemsFunction
+      Handler: src/handlers/get-all-items.getAllItemsHandler
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Timeout: 60
+      Description: A simple example includes a HTTP get method to get all items from
+        a DynamoDB table.
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: SampleTable
+      Environment:
+        Variables:
+          SAMPLE_TABLE:
+            Ref: SampleTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /
+            Method: GET
+    Metadata:
+      SamResourceId: getAllItemsFunction
+  getByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: getByIdFunction
+      Handler: src/handlers/get-by-id.getByIdHandler
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Timeout: 60
+      Description: A simple example includes a HTTP get method to get one item by
+        id from a DynamoDB table.
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: SampleTable
+      Environment:
+        Variables:
+          SAMPLE_TABLE:
+            Ref: SampleTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: GET
+    Metadata:
+      SamResourceId: getByIdFunction
+  putItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: putItemFunction
+      Handler: src/handlers/put-item.putItemHandler
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Timeout: 60
+      Description: A simple example includes a HTTP post method to add one item to
+        a DynamoDB table.
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: SampleTable
+      Environment:
+        Variables:
+          SAMPLE_TABLE:
+            Ref: SampleTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
+    Metadata:
+      SamResourceId: putItemFunction
+  SampleTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
