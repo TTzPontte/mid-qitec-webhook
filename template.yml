@@ -98,8 +98,8 @@ Resources:
           Type: Api
           Properties:
             Path: /
-            Method: POST
-  webhookFunction:
+            Method: PUT
+  webhookFn:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./
