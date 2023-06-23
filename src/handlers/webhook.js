@@ -6,7 +6,7 @@ const tableName = process.env.SAMPLE_TABLE;
 
 exports.webhookHandler = async (event) => {
     const { body, httpMethod, path } = event;
-    if (httpMethod !== 'POST') {
+    if (httpMethod !== 'PUT') {
         throw new Error(`postMethod only accepts POST method, you tried: ${httpMethod} method.`);
     }
     console.log('received:', JSON.stringify(event));
