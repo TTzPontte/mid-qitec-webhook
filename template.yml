@@ -121,7 +121,7 @@ Resources:
           Type: Api
           Properties:
             Path: /webhook/
-            Method: POST
+            Method: PUT
 
   # DynamoDB table to store item: {id: <ID>, name: <NAME>}
   SampleTable:
