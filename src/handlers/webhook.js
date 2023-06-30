@@ -11,16 +11,13 @@ exports.webhookHandler = async (event) => {
     }
     console.log('received:', JSON.stringify(event));
 
-    const {  webhook_type , event_datetime, key, status} = JSON.parse(body);
+    const parsedBody = JSON.parse(body);
 
     const params = {
         TableName: tableName,
         Item: {
             id: uuid.v4(),
-            webhook_type,
-            event_datetime,
-            status,
-            key
+            ...parsedBody
         },
     };
     await docClient.put(params).promise();
